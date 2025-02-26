@@ -38,7 +38,11 @@ from k4FWCore import ApplicationMgr, IOSvc
 from k4FWCore.parseArgs import parser
 
 parser.add_argument(
-    "--iosvc", action="store_true", default=False, help="Use IOSvc instead of PodioDataSvc"
+    "--no-iosvc",
+    dest="no_iosvc",
+    action="store_true",
+    default=False,
+    help="Use PodioDataSvc instead of IOSvc",
 )
 parser.add_argument(
     "--use-functional-checker", action="store_true", default=False, help="Use functional checker"
@@ -49,12 +53,12 @@ args = parser.parse_known_args()[0]
 if args.use_functional_checker:
     from Configurables import MCRecoLinkCheckerFunctional as MCRecoLinkChecker
 
-if args.iosvc:
+if not args.no_iosvc:
     evtsvc = EventDataSvc("EventDataSvc")
 else:
     evtsvc = k4DataSvc("EventDataSvc")
 
-if args.iosvc:
+if not args.no_iosvc:
     iosvc = IOSvc()
     if not args.use_functional_checker:
         iosvc.Output = "global_converter_maps_iosvc.root"
@@ -112,7 +116,7 @@ algList = [
     mcLinkChecker,
 ]
 
-if not args.iosvc:
+if args.no_iosvc:
     algList = [podioInput] + algList + [podioOutput]
 
 ApplicationMgr(TopAlg=algList, EvtSel="NONE", EvtMax=1, ExtSvc=[evtsvc], OutputLevel=DEBUG)
